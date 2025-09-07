@@ -12,6 +12,18 @@ public static class Arrays
         // Remember: Using comments in your program, write down your process for solving this problem
         // step by step before you write the code. The plan should be clear enough that it could
         // be implemented by another person.
+
+
+
+        // Plan:
+        // 1. Validate the requested length (must be >= 0).
+        // 2. Create an array of the given length to hold the multiples.
+        // 3. Fill the array with number * 1, number * 2, ..., number * length.
+        // 4. Return the array.
+
+        if (length < 0)
+            throw new ArgumentOutOfRangeException(nameof(length), "length must be non-negative");
+
         //initialize a new array to contain the multiples
         double[] multiplesArray = new double[length];
         //create a for loop so that we run the multiples for the exact length specified
@@ -33,6 +45,9 @@ public static class Arrays
     /// </summary>
     public static void RotateListRight(List<int> data, int amount)
     {
+        // Plan:
+        // 2. Build a new list by first adding the last `amount` elements, then the first `numberOfData - amount`.
+        // 3. Replace the original list contents with the rotated list.
         int numberOfData = data.Count;
         if (amount == 0) return;
 
@@ -49,6 +64,7 @@ public static class Arrays
         {
             rotatedArray.Add(data[i]);
         }
+        //replace the original contents of the data with the rotateddata after clearing data
         data.Clear();
         data.AddRange(rotatedArray);
         // TODO Problem 2 Start
