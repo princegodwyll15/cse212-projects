@@ -27,7 +27,7 @@ public static class Arrays
         //initialize a new array to contain the multiples
         double[] multiplesArray = new double[length];
         //create a for loop so that we run the multiples for the exact length specified
-        for (int i = 0; i <= length; i++)
+        for (int i = 0; i < length; i++)
         {
             //insert the first multiple value to the first index of our collecting array
             multiplesArray[i] = number * (i + 1);

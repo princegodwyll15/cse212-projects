@@ -8,8 +8,6 @@ ArraySelector.Run();
 Console.WriteLine("\n======================\nAlgorithms\n======================");
 Algorithms.Run();
 
-
-
 // Uncomment and run as you get to the solution part
 // Console.WriteLine("\n======================\nDivisors Solution\n======================");
 // DivisorsSolution.Run();
