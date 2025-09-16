@@ -24,7 +24,22 @@
 
     private static int CountDuplicates(int[] data)
     {
-        // Add code here.
-        return 0;
+        if (data == null || data.Length == 0)
+        {
+            throw new InvalidOperationException("Data is empty. No data to work on.");
+        }
+
+        HashSet<int> seen = new HashSet<int>();
+        HashSet<int> duplicates = new HashSet<int>();
+
+        foreach (int num in data)
+        {
+            if (!seen.Add(num)) // Add returns false if already present
+            {
+                duplicates.Add(num);
+            }
+        }
+
+        return duplicates.Count;
     }
 }
