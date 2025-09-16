@@ -17,22 +17,36 @@
 
     public string Dequeue()
     {
-        if (_queue.Count == 0) // Verify the queue is not empty
+        if (_queue.Count == 0)
         {
             throw new InvalidOperationException("The queue is empty.");
         }
 
-        // Find the index of the item with the highest priority to remove
-        var highPriorityIndex = 0;
-        for (int index = 1; index < _queue.Count - 1; index++)
+        // Find index of the item with the **highest** priority (i.e., largest number)
+        int highPriorityIndex = 0;
+        int maxPriority = _queue[0].Priority;
+
+        for (int i = 1; i < _queue.Count; i++)
         {
-            if (_queue[index].Priority >= _queue[highPriorityIndex].Priority)
-                highPriorityIndex = index;
+            if (_queue[i].Priority > maxPriority)
+            {
+                maxPriority = _queue[i].Priority;
+                highPriorityIndex = i;
+            }
+            // Don't replace index if equal — keeps FIFO for duplicates
         }
 
-        // Remove and return the item with the highest priority
         var value = _queue[highPriorityIndex].Value;
+        _queue.RemoveAt(highPriorityIndex);
         return value;
+    }
+
+
+
+    // This method is used in the test code to inspect the queue.
+    public List<(string, int)> ToList()
+    {
+        return _queue.Select(item => (item.Value, item.Priority)).ToList();
     }
 
     // DO NOT MODIFY THE CODE IN THIS METHOD
@@ -42,6 +56,8 @@
         return $"[{string.Join(", ", _queue)}]";
     }
 }
+
+
 
 internal class PriorityItem
 {
