@@ -1,4 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 
 // TODO Problem 2 - Write and run test cases and fix the code to match requirements.
 
@@ -6,9 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 public class PriorityQueueTests
 {
     [TestMethod]
-    // Scenario: 
-    // Expected Result: 
-    // Defect(s) Found: 
+    // Scenario: Enqueue multiple elements with varying priorities (including duplicates and ties).
+    // Expected Result: Items should be stored in the order they were enqueued.
+    // Defect(s) Found: None - this test checks if the internal order matches the insertion order.
     public void TestPriorityQueue_1()
     {
         var priorityQueue = new PriorityQueue();
@@ -36,11 +38,9 @@ public class PriorityQueueTests
 
 
     [TestMethod]
-    // Scenario: 
-    // Expected Result: 
-    // Defect(s) Found: 
-    // Scenario: Items should be dequeued by highest priority (larger number).
-    // Expected Result: B (50), A (20), C (15), C (14), E (11), A (5), D (5)
+    // Scenario: Items should be dequeued in order of highest priority first (larger number = higher priority).
+    // Expected Result: Dequeue order should be B (50), A (20), C (15), C (14), E (11), A (5), D (5).
+    // Defect(s) Found: None expected, verifies proper priority-based dequeue.
     public void TestPriorityQueue_2()
     {
         var priorityQueue = new PriorityQueue();
@@ -62,8 +62,9 @@ public class PriorityQueueTests
     }
 
     [TestMethod]
-    // Scenario: Same priority → FIFO dequeue order
-    // Expected Result: P, Q, R (since all same priority)
+    // Scenario: All items have the same priority; they should be dequeued in the order they were enqueued (FIFO).
+    // Expected Result: Dequeue order should be P, Q, R.
+    // Defect(s) Found: This tests correct tie-breaking using FIFO.
     public void TestPriorityQueue_SamePriorityOrder()
     {
         var priorityQueue = new PriorityQueue();
@@ -76,8 +77,10 @@ public class PriorityQueueTests
         Assert.AreEqual("R", priorityQueue.Dequeue());
     }
 
-
     [TestMethod]
+    // Scenario: Some items share the highest priority; they should be dequeued in FIFO order among same-priority items.
+    // Expected Result: Dequeue order should be B (20), C (20), A (10), D (5).
+    // Defect(s) Found: Validates FIFO within same-priority and overall priority ordering.
     public void TestPriorityQueue_TieBreakerFIFO()
     {
         var pq = new PriorityQueue();
@@ -91,11 +94,11 @@ public class PriorityQueueTests
         Assert.AreEqual("A", pq.Dequeue()); // Next highest priority
         Assert.AreEqual("D", pq.Dequeue()); // Lowest priority
     }
-    // Add more test cases as needed below.
 
     [TestMethod]
-    // Scenario: Dequeue from empty queue should throw
-    // Expected Result: InvalidOperationException with correct message
+    // Scenario: Attempting to dequeue from an empty queue.
+    // Expected Result: Should throw InvalidOperationException with message "The queue is empty."
+    // Defect(s) Found: Ensures robust error handling for edge cases.
     public void TestPriorityQueue_EmptyDequeue()
     {
         var priorityQueue = new PriorityQueue();
