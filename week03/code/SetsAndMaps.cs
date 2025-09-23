@@ -22,7 +22,29 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        HashSet<string> seen = new HashSet<string>();
+        List<string> result = new List<string>();
+
+        foreach (var word in words)
+        {
+            if (word[0] == word[1])
+            {
+                continue;
+            }
+            char[] array = word.ToCharArray();
+            Array.Reverse(array);
+            string rev = new string(array);
+
+            if (seen.Contains(rev))
+            {
+                result.Add($"{rev} & {word}");
+            }
+            else
+            {
+                seen.Add(word);
+            }
+        }
+        return result.ToArray();
     }
 
     /// <summary>
@@ -38,11 +60,30 @@ public static class SetsAndMaps
     /// <returns>fixed array of divisors</returns>
     public static Dictionary<string, int> SummarizeDegrees(string filename)
     {
+        //create a dictionary 
         var degrees = new Dictionary<string, int>();
+
         foreach (var line in File.ReadLines(filename))
         {
-            var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            var fields = line.Split(',');
+
+            // Ensure there are at least 5 fields to prevent IndexOutOfRangeException
+            if (fields.Length > 4)
+            {
+                var degree = fields[4].Trim(); // Trim whitespace
+
+                if (!string.IsNullOrEmpty(degree))
+                {
+                    if (degrees.ContainsKey(degree))
+                    {
+                        degrees[degree]++;
+                    }
+                    else
+                    {
+                        degrees[degree] = 1;
+                    }
+                }
+            }
         }
 
         return degrees;
@@ -66,8 +107,45 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        // Normalize: lowercase and remove spaces
+        word1 = word1.ToLower().Replace(" ", "");
+        word2 = word2.ToLower().Replace(" ", "");
+
+        // If lengths don't match, they can't be anagrams
+        if (word1.Length != word2.Length)
+            return false;
+
+        // Build letter frequency dictionary for word1
+        var count1 = new Dictionary<char, int>();
+        foreach (char c in word1)
+        {
+            if (count1.ContainsKey(c))
+                count1[c]++;
+            else
+                count1[c] = 1;
+        }
+
+        // Build letter frequency dictionary for word2
+        var count2 = new Dictionary<char, int>();
+        foreach (char c in word2)
+        {
+            if (count2.ContainsKey(c))
+                count2[c]++;
+            else
+                count2[c] = 1;
+        }
+
+        // Compare the two dictionaries
+        if (count1.Count != count2.Count)
+            return false;
+
+        foreach (var kvp in count1)
+        {
+            if (!count2.ContainsKey(kvp.Key) || count2[kvp.Key] != kvp.Value)
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -96,11 +174,22 @@ public static class SetsAndMaps
 
         var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
-        // TODO Problem 5:
-        // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
-        // on those classes so that the call to Deserialize above works properly.
-        // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-        // 3. Return an array of these string descriptions.
-        return [];
+        if (featureCollection?.Features == null)
+            return new string[0];
+
+        var summaries = new List<string>();
+
+        foreach (var feature in featureCollection.Features)
+        {
+            var mag = feature.Properties?.Magnitude;
+            var place = feature.Properties?.Place;
+
+            if (mag != null && !string.IsNullOrWhiteSpace(place))
+            {
+                summaries.Add($"Location: {place} | Magnitude: {mag:F1}");
+            }
+        }
+
+        return summaries.ToArray();
     }
 }

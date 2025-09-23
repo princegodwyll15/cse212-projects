@@ -23,14 +23,34 @@ public class Basketball
         reader.TextFieldType = FieldType.Delimited;
         reader.SetDelimiters(",");
         reader.ReadFields(); // ignore header row
-        while (!reader.EndOfData) {
+        while (!reader.EndOfData)
+        {
             var fields = reader.ReadFields()!;
             var playerId = fields[0];
             var points = int.Parse(fields[8]);
+            //if player is not in the dictionary by their id
+            if (!players.ContainsKey(playerId))
+            {
+                //then add that player
+                players.Add(playerId, points);
+            }
         }
-
         Console.WriteLine($"Players: {{{string.Join(", ", players)}}}");
+        //convert the dictionary to an array
+        //this returns data in this format ["Playername", score]
+        KeyValuePair<string, int>[] arrayOfPlayerIdAndPoint = players.ToArray();
 
-        var topPlayers = new string[10];
+        //get top ten players with highest score from the array
+        var topPlayers = players
+            .OrderByDescending(player => player.Value)  // sort by score
+            .Take(10)                                   // take only top 10
+            .Select(player => new string[] { player.Key, player.Value.ToString() })// get the player name and their score
+            .ToArray();                                 // convert to string[]
+
+        //print player names to screen                                           
+        foreach (var player in topPlayers)
+        {
+            Console.WriteLine(player);
+        }
     }
 }
