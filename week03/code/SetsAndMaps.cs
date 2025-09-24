@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+
 public static class SetsAndMaps
 {
     /// <summary>
@@ -60,34 +61,29 @@ public static class SetsAndMaps
     /// <returns>fixed array of divisors</returns>
     public static Dictionary<string, int> SummarizeDegrees(string filename)
     {
-        //create a dictionary 
         var degrees = new Dictionary<string, int>();
 
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(',');
 
-            // Ensure there are at least 5 fields to prevent IndexOutOfRangeException
-            if (fields.Length > 4)
+            if (fields.Length > 3) // 4th column index is 3
             {
-                var degree = fields[4].Trim(); // Trim whitespace
+                var degree = fields[3].Trim();
 
                 if (!string.IsNullOrEmpty(degree))
                 {
                     if (degrees.ContainsKey(degree))
-                    {
                         degrees[degree]++;
-                    }
                     else
-                    {
                         degrees[degree] = 1;
-                    }
                 }
             }
         }
 
         return degrees;
     }
+
 
     /// <summary>
     /// Determine if 'word1' and 'word2' are anagrams.  An anagram
@@ -165,28 +161,27 @@ public static class SetsAndMaps
     public static string[] EarthquakeDailySummary()
     {
         const string uri = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
-        using var client = new HttpClient();
-        using var getRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
-        using var jsonStream = client.Send(getRequestMessage).Content.ReadAsStream();
-        using var reader = new StreamReader(jsonStream);
-        var json = reader.ReadToEnd();
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
+        using var client = new HttpClient();
+        var json = client.GetStringAsync(uri).Result;
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
         if (featureCollection?.Features == null)
-            return new string[0];
+            return Array.Empty<string>();
 
         var summaries = new List<string>();
 
         foreach (var feature in featureCollection.Features)
         {
-            var mag = feature.Properties?.Magnitude;
+            var mag = feature.Properties?.Mag;
             var place = feature.Properties?.Place;
 
             if (mag != null && !string.IsNullOrWhiteSpace(place))
             {
-                summaries.Add($"Location: {place} | Magnitude: {mag:F1}");
+                // 🔥 This matches the test exactly
+                summaries.Add($"{place} - Mag {mag.Value:F1}");
             }
         }
 
