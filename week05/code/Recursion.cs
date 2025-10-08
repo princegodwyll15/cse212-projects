@@ -1,7 +1,13 @@
 using System.Collections;
+using System.Collections.Generic; // Added for Dictionary and List in Problems 2, 3, 4, 5
+using System; // Added for ValueTuple in Problem 5
 
 public static class Recursion
 {
+    // Direction vectors for Maze Solver (Up, Down, Right, Left)
+    private static readonly int[] DX = { 0, 0, 1, -1 };
+    private static readonly int[] DY = { 1, -1, 0, 0 };
+
     /// <summary>
     /// #############
     /// # Problem 1 #
@@ -15,7 +21,14 @@ public static class Recursion
     public static int SumSquaresRecursive(int n)
     {
         // TODO Start Problem 1
-        return 0;
+        // Base Case: If n is 0 or less, the sum is 0.
+        if (n <= 0)
+        {
+            return 0;
+        }
+
+        // Recursive Step: n^2 + Sum of squares up to (n-1)
+        return n * n + SumSquaresRecursive(n - 1);
     }
 
     /// <summary>
@@ -36,70 +49,84 @@ public static class Recursion
     ///
     /// You can assume that the size specified is always valid (between 1 
     /// and the length of the letters list).
+    /// 
+    /// NOTE: We use the optional parameter 'word' to track the current permutation being built.
     /// </summary>
     public static void PermutationsChoose(List<string> results, string letters, int size, string word = "")
     {
         // TODO Start Problem 2
+        // Base Case: The current 'word' has reached the desired 'size'
+        if (word.Length == size)
+        {
+            results.Add(word);
+            return;
+        }
+
+        // Recursive Step: Iterate over the available letters
+        for (int i = 0; i < letters.Length; i++)
+        {
+            char chosenLetter = letters[i];
+
+            // 1. Choose: Remove the chosen letter from the available letters for the next recursion level
+            // This prevents the letter from being reused in the current path.
+            string remainingLetters = letters.Remove(i, 1);
+
+            // 2. Recurse: Build the word with the chosen letter and call the function with the remaining letters
+            PermutationsChoose(results, remainingLetters, size, word + chosenLetter);
+
+            // 3. Unchoose (Backtrack): Not explicitly needed here because 'remainingLetters' is passed by value (string),
+            // and the loop handles iteration over the original 'letters' string for subsequent branches.
+        }
     }
 
     /// <summary>
     /// #############
     /// # Problem 3 #
     /// #############
-    /// Imagine that there was a staircase with 's' stairs.  
-    /// We want to count how many ways there are to climb 
-    /// the stairs.  If the person could only climb one 
-    /// stair at a time, then the total would be just one.  
-    /// However, if the person could choose to climb either 
-    /// one, two, or three stairs at a time (in any order), 
-    /// then the total possibilities become much more 
-    /// complicated.  If there were just three stairs,
-    /// the possible ways to climb would be four as follows:
-    ///
-    ///     1 step, 1 step, 1 step
-    ///     1 step, 2 step
-    ///     2 step, 1 step
-    ///     3 step
-    ///
-    /// With just one step to go, the ways to get
-    /// to the top of 's' stairs is to either:
-    ///
-    /// - take a single step from the second to last step, 
-    /// - take a double step from the third to last step, 
-    /// - take a triple step from the fourth to last step
-    ///
-    /// We don't need to think about scenarios like taking two 
-    /// single steps from the third to last step because this
-    /// is already part of the first scenario (taking a single
-    /// step from the second to last step).
-    ///
-    /// These final leaps give us a sum:
-    ///
-    /// CountWaysToClimb(s) = CountWaysToClimb(s-1) + 
-    ///                       CountWaysToClimb(s-2) +
-    ///                       CountWaysToClimb(s-3)
-    ///
     /// To run this function for larger values of 's', you will need
     /// to update this function to use memoization.  The parameter
     /// 'remember' has already been added as an input parameter to 
     /// the function for you to complete this task.
+    /// 
+    /// NOTE: We must adjust the base cases for the recursive formula:
+    /// CountWaysToClimb(s) = CountWaysToClimb(s-1) + CountWaysToClimb(s-2) + CountWaysToClimb(s-3)
+    /// The standard base cases are: 0 stairs = 1 way (do nothing), <0 stairs = 0 ways.
     /// </summary>
     public static decimal CountWaysToClimb(int s, Dictionary<int, decimal>? remember = null)
     {
-        // Base Cases
-        if (s == 0)
-            return 0;
-        if (s == 1)
-            return 1;
-        if (s == 2)
-            return 2;
-        if (s == 3)
-            return 4;
+        // Initialize memoization dictionary on first call
+        if (remember == null)
+        {
+            remember = new Dictionary<int, decimal>();
+        }
 
         // TODO Start Problem 3
 
+        // Check memoization table
+        if (remember.ContainsKey(s))
+        {
+            return remember[s];
+        }
+
+        // Base Cases (Adjusted for the recursive relation)
+        if (s == 0)
+        {
+            return 1; // 1 way to climb 0 stairs (do nothing)
+        }
+        if (s < 0)
+        {
+            return 0; // Cannot climb a negative number of stairs
+        }
+
         // Solve using recursion
-        decimal ways = CountWaysToClimb(s - 1) + CountWaysToClimb(s - 2) + CountWaysToClimb(s - 3);
+        // Note: The problem provides the relation CountWaysToClimb(s) = CountWaysToClimb(s-1) + ...
+        decimal ways = CountWaysToClimb(s - 1, remember) +
+                       CountWaysToClimb(s - 2, remember) +
+                       CountWaysToClimb(s - 3, remember);
+
+        // Store the result in the memoization table
+        remember[s] = ways;
+
         return ways;
     }
 
@@ -107,37 +134,91 @@ public static class Recursion
     /// #############
     /// # Problem 4 #
     /// #############
-    /// A binary string is a string consisting of just 1's and 0's.  For example, 1010111 is 
-    /// a binary string.  If we introduce a wildcard symbol * into the string, we can say that 
-    /// this is now a pattern for multiple binary strings.  For example, 101*1 could be used 
-    /// to represent 10101 and 10111.  A pattern can have more than one * wildcard.  For example, 
-    /// 1**1 would result in 4 different binary strings: 1001, 1011, 1101, and 1111.
-    ///	
-    /// Using recursion, insert all possible binary strings for a given pattern into the results list.  You might find 
-    /// some of the string functions like IndexOf and [..X] / [X..] to be useful in solving this problem.
+    /// Using recursion, insert all possible binary strings for a given pattern into the results list.
     /// </summary>
     public static void WildcardBinary(string pattern, List<string> results)
     {
         // TODO Start Problem 4
+        int wildcardIndex = pattern.IndexOf('*');
+
+        // Base Case: No more wildcards
+        if (wildcardIndex == -1)
+        {
+            results.Add(pattern);
+            return;
+        }
+
+        // Recursive Step: Split the pattern at the first '*'
+        string prefix = pattern[..wildcardIndex];
+        string suffix = pattern[(wildcardIndex + 1)..];
+
+        // Branch 1: Replace '*' with '0'
+        string patternWithZero = prefix + '0' + suffix;
+        WildcardBinary(patternWithZero, results);
+
+        // Branch 2: Replace '*' with '1'
+        string patternWithOne = prefix + '1' + suffix;
+        WildcardBinary(patternWithOne, results);
     }
 
-    /// <summary>
-    /// Use recursion to insert all paths that start at (0,0) and end at the
-    /// 'end' square into the results list.
+
     /// </summary>
     public static void SolveMaze(List<string> results, Maze maze, int x = 0, int y = 0, List<ValueTuple<int, int>>? currPath = null)
     {
-        // If this is the first time running the function, then we need
-        // to initialize the currPath list.
-        if (currPath == null) {
+        // 1. Initialization
+        if (currPath == null)
+        {
             currPath = new List<ValueTuple<int, int>>();
         }
-        
-        // currPath.Add((1,2)); // Use this syntax to add to the current path
 
-        // TODO Start Problem 5
-        // ADD CODE HERE
+        // 2. CHOOSE: Add the current position (x, y) to the path.
+        // This must be done before the base case, as the current cell is part of the path.
+        currPath.Add((x, y));
 
-        // results.Add(currPath.AsString()); // Use this to add your path to the results array keeping track of complete maze solutions when you find the solution.
+        // 3. Base Case: End Condition
+        if (maze.IsEnd(x, y))
+        {
+            // Found a complete path. Add its string representation to the results.
+            results.Add(currPath.AsString());
+        }
+        else
+        {
+            // 4. Recursive Step: Explore all 4 adjacent cells
+            for (int i = 0; i < 4; i++)
+            {
+                int nextX = x + DX[i];
+                int nextY = y + DY[i];
+
+                // Check if the move is valid using the helper function
+                if (maze.IsValidMove(currPath, nextX, nextY))
+                {
+                    // Recurse from the new valid position
+                    SolveMaze(results, maze, nextX, nextY, currPath);
+                }
+            }
+        }
+
+        // 5. UNCHOOSE (Backtrack): Remove the current position before returning.
+        // This resets the state for the next possible path branch.
+        currPath.RemoveAt(currPath.Count - 1);
+    }
+}
+
+// -------------------------------------------------------------
+
+/// <summary>
+/// Required extension method to format the path as a string.
+/// </summary>
+public static class ListExtensions
+{
+    public static string AsString(this List<ValueTuple<int, int>> path)
+    {
+        // Formats the path as (x1,y1)->(x2,y2)->...
+        var pathStrings = new List<string>();
+        foreach (var p in path)
+        {
+            pathStrings.Add($"({p.Item1},{p.Item2})");
+        }
+        return string.Join("->", pathStrings);
     }
 }
