@@ -204,8 +204,6 @@ public static class Recursion
     }
 }
 
-// -------------------------------------------------------------
-
 /// <summary>
 /// Required extension method to format the path as a string.
 /// </summary>
