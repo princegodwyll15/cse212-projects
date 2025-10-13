@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static IntArrayExtensionMethods;
 
 // DO NOT MODIFY THIS FILE
 

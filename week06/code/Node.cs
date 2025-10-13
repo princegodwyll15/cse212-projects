@@ -11,8 +11,7 @@ public class Node
 
     public void Insert(int value)
     {
-        // TODO Start Problem 1
-
+        // Insert a new node while maintaining BST properties
         if (value < Data)
         {
             // Insert to the left
@@ -21,7 +20,7 @@ public class Node
             else
                 Left.Insert(value);
         }
-        else
+        else if (value > Data) // Prevent duplicates
         {
             // Insert to the right
             if (Right is null)
@@ -29,17 +28,25 @@ public class Node
             else
                 Right.Insert(value);
         }
+        // If value == Data, do nothing (avoid duplicates)
     }
 
     public bool Contains(int value)
     {
-        // TODO Start Problem 2
-        return false;
+        // Recursively search the BST
+        if (value == Data)
+            return true;
+        else if (value < Data)
+            return Left != null && Left.Contains(value);
+        else
+            return Right != null && Right.Contains(value);
     }
 
     public int GetHeight()
     {
-        // TODO Start Problem 4
-        return 0; // Replace this line with the correct return statement(s)
+        // Recursively calculate the height of left and right subtrees
+        int leftHeight = Left?.GetHeight() ?? 0;
+        int rightHeight = Right?.GetHeight() ?? 0;
+        return 1 + Math.Max(leftHeight, rightHeight);
     }
 }
